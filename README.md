@@ -1,4 +1,12 @@
-# Houdini Engine for Unity
+# Houdini Engine for Unity(Modified)
+
+Extend some features:
+
++ Add quick access class to the HDA output attributes.
++ Add GPU instance API(in development)
+
+---
+
 Houdini Engine for Unity is a Unity plug-in that allows deep integration of
 Houdini technology into Unity through the use of Houdini Engine.
 
