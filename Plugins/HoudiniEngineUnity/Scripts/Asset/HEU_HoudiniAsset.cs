@@ -340,6 +340,12 @@ namespace HoudiniEngineUnity
 	[SerializeField]
 	private bool _useLODGroups = true;
 	public bool UseLODGroups { get { return _useLODGroups; } set { _useLODGroups = value; } }
+	[SerializeField]
+	private bool _useGPUInstance = true;
+	public bool UseGPUInstance { get { return _useGPUInstance; } set { _useGPUInstance = value; } }
+	[SerializeField]
+	private string _GPUInstancePath = "Assets/Resources/_HoudiniInstanceTmp/HoudiniGPUInstance.json";
+	public string GPUInstancePath { get { return _GPUInstancePath; } set { _GPUInstancePath = value; } }
 
 	[SerializeField]
 	private bool _splitGeosByGroup = false;
@@ -1159,7 +1165,7 @@ namespace HoudiniEngineUnity
 	    else
 	    {
 #if UNITY_EDITOR && UNITY_2018_3_OR_NEWER
-		var stage = UnityEditor.Experimental.SceneManagement.PrefabStageUtility.GetCurrentPrefabStage();
+		var stage = UnityEditor.SceneManagement.PrefabStageUtility.GetCurrentPrefabStage();
 		if (stage != null)
 		{
 		    // Disable UI when HDA is in prefab stage
@@ -1435,7 +1441,6 @@ namespace HoudiniEngineUnity
 #if HEU_PROFILER_ON
 	    _postCookStartTime = Time.realtimeSinceStartup;
 #endif
-
 	    HEU_SessionBase session = GetAssetSession(false);
 	    if (session == null)
 	    {
@@ -1499,6 +1504,17 @@ namespace HoudiniEngineUnity
 	    // Otherwise saving the scene does not work.
 	    // Should we make this more specific by checking if there were any changes above?
 	    HEU_EditorUtility.MarkSceneDirty();
+
+		// @NEW use gpu instance
+		if(_useGPUInstance){
+			List<HEU_GeoNode> outGeoNodes = new List<HEU_GeoNode>();
+			GetOutputGeoNodes(outGeoNodes);
+			HEU_GetGPUInstanceData gpuInstance = new HEU_GetGPUInstanceData(session, outGeoNodes);
+			if(GPUInstancePath != "")
+				gpuInstance.WriteJsonData(_GPUInstancePath);
+			else
+				gpuInstance.WriteJsonData(HoudiniEngineUnity.HEU_Defines.HAPI_GPUINSTANCE_JSON_TMP_PATH);
+		}
 
 	    DoPostCookWork(session);
 
