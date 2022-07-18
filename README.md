@@ -1,9 +1,43 @@
 # Houdini Engine for Unity(Modified)
 
-Extend some features:
+## Extend some features:
 
 + Add quick access class to the HDA output attributes.
-+ Add GPU instance API(in development)
++ Add GPU instance API
+
+## Usage:
+
+1. This function will read the follow attributes in Houdini, make sure all the attributes exist and own by the correct owner.
+
+   + orient(vector4, point). Control instance rotation.
+   + pscale(vector3, point). Control instance scale.
+   + P(vector3, point). Instance centroid.
+   + unity_gpu_instance_ptototypeX(string, detail). The prototype of instance mesh(in developement). Prototype is the relative path of the mesh asset, and the "X" in "unity_gpu_instance_ptototypeX" is the prototype index, used to get prototype by index.
+   + unity_gpu_instance_ptototypeindex(string, detail). The index of instance prototype(in developement). If this property of the point one is 3, means this point use the mesh asset stored in unity_gpu_instance_ptototype owned by detail as the instance mesh.
+
+2. Make sure the output of your HDA is set to display.
+
+3. Check "GPU Instance" in the "Parameter Options" section of the HDA panel in Unity.
+
+4. "GPU Instance Path" in the "Bake" section controls the output json file path. Every time you press "Cook", "Recook", "Rebuild" button, GPU instance data will be saved if exist.
+
+5. This json data is organized by the structure "*HoudiniEngineUnity*.HEU_GetGPUInstanceData.*GPUInstanceData*". This struct contains 3 array members:
+
+   + protoIndex[]: prototype index of each point, ordered by point number.
+   + modelToWorldMat[]: model to world matrix of each point, ordered by point number.
+   + proto[]: prototype data, ordered by prototype index.
+
+   Access the data by the following codes.
+
+   ```csharp
+   using System.IO
+   
+   // HAPI_GPUINSTANCE_JSON_TMP_PATH is the default instance json path
+   string instance_data_json = HoudiniEngineUnity.HEU_Defines.HAPI_GPUINSTANCE_JSON_TMP_PATH;
+   StreamReader SRJson = new StreamReader(instance_data_json);
+   string json_data = SRJson.ReadToEnd();
+   HoudiniEngineUnity.HEU_GetGPUInstanceData.GPUInstanceData gpuinstance_data = JsonUtility.FromJson<HoudiniEngineUnity.HEU_GetGPUInstanceData.GPUInstanceData>(json_data);
+   ```
 
 ---
 
@@ -34,11 +68,13 @@ For support and reporting bugs:
 * [Bug Submission](https://www.sidefx.com/bugs/submit/)
 
 ## Supported Unity versions
+
 Currently, the supported Unity versions are:
 
 * 2018.1 and newer
 
 ## Installing from Source
+
 1. Fork this repository to your own Github account using the Fork button at the top.
 1. Clone the forked repository to your file system.
 1. Download and install the correct build of Houdini. You must have the exact build number and version as HOUDINI_MAJOR, HOUDINI_MINOR, and HOUDINI_BUILD int values in Plugins/HoudiniEngineUnity/Scripts/HEU_HoudiniVersion.cs. You can get the correct build from: http://www.sidefx.com/download/daily-builds (you might need to wait for the build to finish and show up if you're updating to the very latest version of the plugin)
