@@ -153,6 +153,22 @@ namespace HoudiniEngineUnity
 	    GUILayout.EndHorizontal();
 	}
 
+	/// <summary>
+	/// Draw the specified string property field (via its propertyName).
+	/// </summary>
+	public static void DrawStringPropertyField(SerializedObject assetObject, string propertyName, string labelName, string toolTip = "")
+	{
+	    SerializedProperty property = assetObject.FindProperty(propertyName);
+
+	    GUIContent content = new GUIContent(labelName, toolTip);
+
+	    GUILayout.BeginHorizontal();
+	    GUILayout.Label(content);
+	    EditorGUILayout.PropertyField(property, GUIContent.none, true);
+		GUILayout.ExpandWidth(true);
+	    GUILayout.EndHorizontal();
+	}
+
 	public static bool DrawToggleLeft(bool toggleValue, string labelName, string toolTip = "")
 	{
 	    GUIContent content = new GUIContent("  " + labelName, toolTip);

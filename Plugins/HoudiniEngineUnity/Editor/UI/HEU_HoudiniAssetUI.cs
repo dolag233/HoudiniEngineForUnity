@@ -365,6 +365,7 @@ namespace HoudiniEngineUnity
 
 		    EditorGUILayout.BeginVertical();
 		    HEU_EditorUI.BeginSimpleSection("Generate");
+			HEU_EditorUI.DrawPropertyField(assetObject, "_useGPUInstance", "Gpu Instance", "Generate GPU Instance data.");
 			HEU_EditorUI.DrawPropertyField(assetObject, "_useLODGroups", "LOD Groups", "Automatically create Unity LOD group if found.");
 			HEU_EditorUI.DrawPropertyField(assetObject, "_generateNormals", "Normals", "Generate normals in Unity for output geometry.");
 			HEU_EditorUI.DrawPropertyField(assetObject, "_generateTangents", "Tangents", "Generate tangents in Unity for output geometry.");
@@ -674,7 +675,7 @@ namespace HoudiniEngineUnity
 			}
 
 			GUILayout.Space(_mainButtonSeparatorDistance);
-
+			
 			if (GUILayout.Button(_bakeprefabContent, _mainButtonStyle))
 			{
 			    asset.BakeToNewPrefab();
@@ -723,8 +724,11 @@ namespace HoudiniEngineUnity
 					Debug.LogWarning("Unable to bake to null target at index " + i);
 				    }
 				}
+				
 			    }
 			}
+			// edit gpu instance path
+			HEU_EditorUI.DrawStringPropertyField(assetObject, "_GPUInstancePath", "Gpu Instance Json Path", "Generate GPU Instance data json path. Need to check \"GPU Instance\" in the parameter option first");
 
 			using (var hs = new EditorGUILayout.VerticalScope(_mainButtonSetStyle))
 			{
