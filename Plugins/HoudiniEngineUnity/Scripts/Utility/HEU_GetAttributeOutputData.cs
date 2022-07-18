@@ -35,7 +35,8 @@ namespace HoudiniEngineUnity{
     using HAPI_PartId = System.Int32;
     using HAPI_StringHandle = System.Int32;
     using HEU_FloatData = KeyValuePair<string, float[]>;
-
+    
+    [System.Serializable]
     public class HEU_GetAttributeOutputData
     {
         /// <summary> 
@@ -55,19 +56,19 @@ namespace HoudiniEngineUnity{
         /// <param name="volumePositionOffset">Heightfield offset</param>
         /// <returns>True if successfully popupated the terrain</returns>
         public HEU_SessionBase session{get; set;}
-        private Dictionary<string, HEU_AttributeData> _attribDataDict = new Dictionary<string, HEU_AttributeData>();
-        public Dictionary<string, HEU_AttributeData> floatDataDict{get{return _attribDataDict;}}
+        private Dictionary<string, HEU_AttributeDataExtend> _attribDataDict = new Dictionary<string, HEU_AttributeDataExtend>();
+        public Dictionary<string, HEU_AttributeDataExtend> floatDataDict{get{return _attribDataDict;}}
         private List<HEU_GeoNode> _geoNodes;
         public HEU_GetAttributeOutputData(HEU_SessionBase session,List<HEU_GeoNode> geoNodes){
             this.session = session;
             this._geoNodes = geoNodes;
         }
         // access like dict
-        public HEU_AttributeData this[string key]{
+        public HEU_AttributeDataExtend this[string key]{
             get{
                 // invalid key
                 if(!_attribDataDict.ContainsKey(key))
-                    return new HEU_AttributeData();
+                    return new HEU_AttributeDataExtend();
                 else
                     return _attribDataDict[key];
             }
@@ -83,7 +84,9 @@ namespace HoudiniEngineUnity{
             float[] attrib_float_array = new float[0];
             int[] attrib_int_array = new int[0];
             string[] attrib_string_array = new string[0];
-            HEU_AttributeData.AttributeType attrib_type = HEU_AttributeData.AttributeType.FLOAT;
+            Vector3[] attrib_vector3_array = new Vector3[0];
+            Vector4[] attrib_vector4_array = new Vector4[0];
+            HEU_AttributeDataExtend.AttributeType attrib_type = HEU_AttributeDataExtend.AttributeType.FLOAT;
 
             // get attribute data
             foreach(var geoNode in _geoNodes){
@@ -91,16 +94,26 @@ namespace HoudiniEngineUnity{
                     bool flag = false;
                     if(typeof(T) == typeof(float)){
                         flag = GetFloatData(session, geoNode.GeoID, part.PartID, attribName, ref attrib_info, ref attrib_float_array);
-                        attrib_type = HEU_AttributeData.AttributeType.FLOAT;
+                        attrib_type = HEU_AttributeDataExtend.AttributeType.FLOAT;
                     }
                     else if(typeof(T) == typeof(int)){
                         flag = GetIntData(session, geoNode.GeoID, part.PartID, attribName, ref attrib_info, ref attrib_int_array);
-                        attrib_type = HEU_AttributeData.AttributeType.INT;
+                        attrib_type = HEU_AttributeDataExtend.AttributeType.INT;
                         //Debug.LogWarning(string.Format("float num {0}", attrib_info.count));
                     }
                     else if(typeof(T) == typeof(string)){
                         flag = GetStringData(session, geoNode.GeoID, part.PartID, attribName, ref attrib_info, ref attrib_string_array);
-                        attrib_type = HEU_AttributeData.AttributeType.STRING;
+                        attrib_type = HEU_AttributeDataExtend.AttributeType.STRING;
+                    }
+                    else if(typeof(T) == typeof(Vector3)){
+                        flag = GetVector3Data(session, geoNode.GeoID, part.PartID, attribName, ref attrib_info, ref attrib_vector3_array);
+                        attrib_type = HEU_AttributeDataExtend.AttributeType.VECTOR3;
+                        //Debug.Log(attrib_vector3_array[11]);
+                    }
+                    else if(typeof(T) == typeof(Vector4)){
+                        flag = GetVector4Data(session, geoNode.GeoID, part.PartID, attribName, ref attrib_info, ref attrib_vector4_array);
+                        attrib_type = HEU_AttributeDataExtend.AttributeType.VECTOR4;
+                        //Debug.Log(attrib_vector4_array[15]);
                     }
                     else
                         return false;
@@ -121,11 +134,11 @@ namespace HoudiniEngineUnity{
             if(attrib_info.tupleSize > 0){
                 if(attrib_info.count > 0){
                     // if not empty
-                    HEU_AttributeData attrib_data = new HEU_AttributeData();
+                    HEU_AttributeDataExtend attrib_data = new HEU_AttributeDataExtend();
                     attrib_data._attributeInfo = attrib_info;
                     attrib_data._name = attribName;
                     attrib_data._attributeType = attrib_type;
-                    attrib_data._attributeState = HEU_AttributeData.AttributeState.SYNCED;
+                    attrib_data._attributeState = HEU_AttributeDataExtend.AttributeState.SYNCED;
                     // set attribute real data
                     if(typeof(T) == typeof(float)){
                         attrib_data._floatValues = new float[attrib_info.count];
@@ -139,6 +152,14 @@ namespace HoudiniEngineUnity{
                         attrib_data._intValues = new int[attrib_info.count];
                         attrib_data._intValues = attrib_int_array;
                     }
+                    else if(typeof(T) == typeof(Vector3)){
+                        attrib_data._vector3Values = new Vector3[attrib_info.count];
+                        attrib_data._vector3Values = attrib_vector3_array;
+                    }
+                    else if(typeof(T) == typeof(Vector4)){
+                        attrib_data._vector4Values = new Vector4[attrib_info.count];
+                        attrib_data._vector4Values = attrib_vector4_array;
+                    }
                     else
                         return false;
                     _attribDataDict.TryAdd(attribName, attrib_data);
@@ -150,6 +171,39 @@ namespace HoudiniEngineUnity{
         // get float data of specific part
         public static bool GetFloatData(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID, string attribName, ref HAPI_AttributeInfo attrib_info, ref float[] attrib_array){
             return HEU_GeneralUtility.GetAttribute(session, geoID, partID, attribName, ref attrib_info, ref attrib_array, session.GetAttributeFloatData);
+        }
+        // get vetor3 data of specific part
+        public static bool GetVector3Data(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID, string attribName, ref HAPI_AttributeInfo attrib_info, ref Vector3[] attrib_array){
+            float[] data = new float[0];
+            bool flag = HEU_GeneralUtility.GetAttribute(session, geoID, partID, attribName, ref attrib_info, ref data, session.GetAttributeFloatData);
+
+            if(!flag)
+                return false;
+            
+            // note that attrib_info.count is the count of points
+            attrib_array = new Vector3[attrib_info.count];
+            for(int i = 0;i < attrib_info.count; ++i){
+                attrib_array[i] = new Vector3(data[i * attrib_info.tupleSize],
+                                            data[i * attrib_info.tupleSize + 1],
+                                            data[i * attrib_info.tupleSize + 2]);
+            }
+            return flag;
+        }
+        public static bool GetVector4Data(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID, string attribName, ref HAPI_AttributeInfo attrib_info, ref Vector4[] attrib_array){
+            float[] data = new float[0];
+            bool flag = HEU_GeneralUtility.GetAttribute(session, geoID, partID, attribName, ref attrib_info, ref data, session.GetAttributeFloatData);
+
+            if(!flag)
+                return false;
+            
+            attrib_array = new Vector4[attrib_info.count];
+            for(int i = 0;i < attrib_info.count; ++i){
+                attrib_array[i] = new Vector4(data[i * attrib_info.tupleSize],
+                                            data[i * attrib_info.tupleSize + 1],
+                                            data[i * attrib_info.tupleSize + 2],
+                                            data[i * attrib_info.tupleSize + 3]);
+            }
+            return flag;
         }
         // get int data of specific part
         public static bool GetIntData(HEU_SessionBase session, HAPI_NodeId geoID, HAPI_PartId partID, string attribName, ref HAPI_AttributeInfo attrib_info, ref int[] attrib_array){

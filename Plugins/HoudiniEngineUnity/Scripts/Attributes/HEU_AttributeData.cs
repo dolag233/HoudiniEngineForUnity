@@ -31,7 +31,7 @@ using System.Collections;
 namespace HoudiniEngineUnity
 {
     [System.Serializable]
-    public sealed class HEU_AttributeData
+    public class HEU_AttributeData
     {
 	public HAPI_AttributeInfo _attributeInfo;
 
