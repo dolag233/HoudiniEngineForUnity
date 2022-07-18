@@ -58,7 +58,7 @@ namespace HoudiniEngineUnity{
         [System.Serializable]
         public struct GPUInstanceData{
             // below here is the data per instance point
-            public int[] proto_index;
+            public int[] protoIndex;
             public Matrix4x4[] modelToWorldMat;
             // proto is the real mesh path per instance
             public string[] proto;
@@ -130,8 +130,8 @@ namespace HoudiniEngineUnity{
             }
             _gpuinstanceData.modelToWorldMat = new Matrix4x4[pcnum];
             _gpuinstanceData.modelToWorldMat = modelToWorldMatArray;
-            _gpuinstanceData.proto_index = new int[_getData[HEU_Defines.HAPI_ATTRIB_DOLAG_GPUINSTANCE_PROTOTYPE_INDEX]._attributeInfo.count];
-            _gpuinstanceData.proto_index = _getData[HEU_Defines.HAPI_ATTRIB_DOLAG_GPUINSTANCE_PROTOTYPE_INDEX]._intValues;
+            _gpuinstanceData.protoIndex = new int[_getData[HEU_Defines.HAPI_ATTRIB_DOLAG_GPUINSTANCE_PROTOTYPE_INDEX]._attributeInfo.count];
+            _gpuinstanceData.protoIndex = _getData[HEU_Defines.HAPI_ATTRIB_DOLAG_GPUINSTANCE_PROTOTYPE_INDEX]._intValues;
             _gpuinstanceData.proto = new string[proto.Count];
             Debug.Log(modelToWorldMatArray[50].ToString());
             _gpuinstanceData.proto = proto.ToArray();
@@ -139,7 +139,7 @@ namespace HoudiniEngineUnity{
         // return null if invalid data
         public string GetJsonData(){
             if(_gpuinstanceData.proto == null || _gpuinstanceData.proto.Length == 0 ||
-             _gpuinstanceData.proto_index == null || _gpuinstanceData.proto_index.Length == 0 ||
+             _gpuinstanceData.protoIndex == null || _gpuinstanceData.protoIndex.Length == 0 ||
              _gpuinstanceData.modelToWorldMat == null || _gpuinstanceData.modelToWorldMat.Length == 0){
                 return null;
             }
