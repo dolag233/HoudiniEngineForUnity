@@ -30,7 +30,7 @@
    Access the data by the following codes.
 
    ```csharp
-   using System.IO
+   using System.IO;
    
    // HAPI_GPUINSTANCE_JSON_TMP_PATH is the default instance json path
    string instance_data_json = HoudiniEngineUnity.HEU_Defines.HAPI_GPUINSTANCE_JSON_TMP_PATH;
