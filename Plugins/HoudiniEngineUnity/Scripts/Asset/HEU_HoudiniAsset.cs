@@ -1162,19 +1162,6 @@ namespace HoudiniEngineUnity
 			"HDA as prefab not supported!";
 		valid = false;
 	    }
-	    else
-	    {
-#if UNITY_EDITOR && UNITY_2018_3_OR_NEWER
-		var stage = UnityEditor.SceneManagement.PrefabStageUtility.GetCurrentPrefabStage();
-		if (stage != null)
-		{
-		    // Disable UI when HDA is in prefab stage
-		    errorMessage = "Houdini Engine Asset Error\n" +
-			    "HDA as prefab not supported!";
-		    valid = false;
-		}
-#endif
-	    }
 	    return valid;
 	}
 

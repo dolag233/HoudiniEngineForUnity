@@ -162,7 +162,12 @@ namespace HoudiniEngineUnity{
                     }
                     else
                         return false;
-                    _attribDataDict.TryAdd(attribName, attrib_data);
+                    
+                    #if NET_STANDARD_2_1
+                        _attribDataDict.TryAdd(attribName, attrib_data);
+                    #else
+                        _attribDataDict.Add(attribName, attrib_data);
+                    #endif
                 }
             }
             return true;
