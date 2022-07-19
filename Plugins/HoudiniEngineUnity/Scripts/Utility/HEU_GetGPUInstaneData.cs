@@ -79,6 +79,7 @@ namespace HoudiniEngineUnity{
             // get prototype index per point
             _getData.GetGeoNodesOutputData<int>(HEU_Defines.HAPI_ATTRIB_DOLAG_GPUINSTANCE_PROTOTYPE_INDEX);
             _getData.GetGeoNodesOutputData<Vector3>(HEU_Defines.HAPI_ATTRIB_POSITION);
+            _getData.GetGeoNodesOutputData<Vector3>(HEU_Defines.HAPI_ATTRIB_DOLAG_GPUINSTANCE_N);
             _getData.GetGeoNodesOutputData<Vector3>(HEU_Defines.HAPI_ATTRIB_DOLAG_GPUINSTANCE_PSCALE);
             _getData.GetGeoNodesOutputData<Vector4>(HEU_Defines.HAPI_ATTRIB_DOLAG_GPUINSTANCE_ORIENT);
             int pcnum = _getData[HEU_Defines.HAPI_ATTRIB_POSITION]._attributeInfo.count;
@@ -106,7 +107,7 @@ namespace HoudiniEngineUnity{
             // process model to world matrix
             Matrix4x4[] modelToWorldMatArray = new Matrix4x4[pcnum];
             for(int i = 0;i < pcnum; ++i){
-                Quaternion rot = new Quaternion();
+                Quaternion rot = Quaternion.identity;
                 Vector3 pos = Vector3.zero;
                 Vector3 scale = Vector3.one;
                 if(_getData[HEU_Defines.HAPI_ATTRIB_DOLAG_GPUINSTANCE_ORIENT]._vector4Values != null){
@@ -117,6 +118,12 @@ namespace HoudiniEngineUnity{
                     rot.w = orient.w;
                     rot.y = -rot.y;
                     rot.z = -rot.z;
+                }
+                else if(_getData[HEU_Defines.HAPI_ATTRIB_DOLAG_GPUINSTANCE_N]._vector3Values != null){
+                    Vector3 N = _getData[HEU_Defines.HAPI_ATTRIB_DOLAG_GPUINSTANCE_N]._vector3Values[i];
+                    N.x = -N.x;
+                    Vector3 up = new Vector3(0.0f, 1.0f, 0.0f);
+                    rot = Quaternion.FromToRotation(up * Mathf.Rad2Deg, N.normalized * Mathf.Rad2Deg);
                 }
                 if(_getData[HEU_Defines.HAPI_ATTRIB_POSITION]._vector3Values != null){
                     pos = _getData[HEU_Defines.HAPI_ATTRIB_POSITION]._vector3Values[i];
@@ -133,7 +140,6 @@ namespace HoudiniEngineUnity{
             _gpuinstanceData.protoIndex = new int[_getData[HEU_Defines.HAPI_ATTRIB_DOLAG_GPUINSTANCE_PROTOTYPE_INDEX]._attributeInfo.count];
             _gpuinstanceData.protoIndex = _getData[HEU_Defines.HAPI_ATTRIB_DOLAG_GPUINSTANCE_PROTOTYPE_INDEX]._intValues;
             _gpuinstanceData.proto = new string[proto.Count];
-            Debug.Log(modelToWorldMatArray[50].ToString());
             _gpuinstanceData.proto = proto.ToArray();
         }
         // return null if invalid data
@@ -147,7 +153,7 @@ namespace HoudiniEngineUnity{
         }
         public void WriteJsonData(string asset_path = HEU_Defines.HAPI_GPUINSTANCE_JSON_TMP_PATH){
             // create folder
-            string[] folder_token = asset_path.Split("/");
+            string[] folder_token = asset_path.Split('/');
             string folder = "";
             for(int i = 0;i < folder_token.Length - 1; ++i){
                 folder += folder_token[i] + "/";

@@ -128,6 +128,7 @@ namespace HoudiniEngineUnity
 	public const string HAPI_ATTRIB_DOLAG_GPUINSTANCE_PROTOTYPE_INDEX = "unity_gpu_instance_prototypeindex";
 	public const string HAPI_ATTRIB_DOLAG_GPUINSTANCE_PSCALE = "pscale";
 	public const string HAPI_ATTRIB_DOLAG_GPUINSTANCE_ORIENT = "orient";
+	public const string HAPI_ATTRIB_DOLAG_GPUINSTANCE_N = "N";
 	public const string HAPI_GPUINSTANCE_JSON_TMP_PATH = "Assets/Resources/_HoudiniInstanceTmp/HoudiniGPUInstance.json";
 
 
