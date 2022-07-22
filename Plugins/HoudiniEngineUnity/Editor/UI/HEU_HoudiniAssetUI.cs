@@ -728,7 +728,9 @@ namespace HoudiniEngineUnity
 			    }
 			}
 			// edit gpu instance path
-			HEU_EditorUI.DrawStringPropertyField(assetObject, "_GPUInstancePath", "Gpu Instance Json Path", "Generate GPU Instance data json path. Need to check \"GPU Instance\" in the parameter option first");
+			HEU_EditorUI.DrawEditablePropertyField(assetObject, "_GPUInstancePath", "Gpu Instance Json Path", "Generate GPU Instance data json path. Need to check \"GPU Instance\" in the parameter option first");
+			HEU_EditorUI.DrawEditablePropertyField(assetObject, "_GPUInstanceApplyChunkSize", "Apply Gpu Instance Chunk Size", "Apply chunk size");
+			HEU_EditorUI.DrawEditablePropertyField(assetObject, "_GPUInstanceChunkSize", "Gpu Instance Chunk Size", "Chunk size of GPU instance. Must be power of 2");
 
 			using (var hs = new EditorGUILayout.VerticalScope(_mainButtonSetStyle))
 			{

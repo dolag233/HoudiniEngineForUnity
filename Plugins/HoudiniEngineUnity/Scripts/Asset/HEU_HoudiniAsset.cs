@@ -346,6 +346,12 @@ namespace HoudiniEngineUnity
 	[SerializeField]
 	private string _GPUInstancePath = "Assets/Resources/_HoudiniInstanceTmp/HoudiniGPUInstance.json";
 	public string GPUInstancePath { get { return _GPUInstancePath; } set { _GPUInstancePath = value; } }
+	[SerializeField]
+	private bool _GPUInstanceApplyChunkSize = false;
+	public bool GPUInstanceApplyChunkSize { get { return _GPUInstanceApplyChunkSize; } set { _GPUInstanceApplyChunkSize = value; } }
+	[SerializeField]
+	private int _GPUInstanceChunkSize = 1024;
+	public int GPUInstanceChunkSize { get { return _GPUInstanceChunkSize; } set { _GPUInstanceChunkSize = value; } }
 
 	[SerializeField]
 	private bool _splitGeosByGroup = false;
@@ -1496,7 +1502,8 @@ namespace HoudiniEngineUnity
 		if(_useGPUInstance){
 			List<HEU_GeoNode> outGeoNodes = new List<HEU_GeoNode>();
 			GetOutputGeoNodes(outGeoNodes);
-			HEU_GetGPUInstanceData gpuInstance = new HEU_GetGPUInstanceData(session, outGeoNodes);
+			int chunk_size = _GPUInstanceApplyChunkSize?_GPUInstanceChunkSize:-1;
+			HEU_GetGPUInstanceData gpuInstance = new HEU_GetGPUInstanceData(session, outGeoNodes, chunk_size);
 			if(GPUInstancePath != "")
 				gpuInstance.WriteJsonData(_GPUInstancePath);
 			else

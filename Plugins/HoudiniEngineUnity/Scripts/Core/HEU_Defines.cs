@@ -130,6 +130,7 @@ namespace HoudiniEngineUnity
 	public const string HAPI_ATTRIB_DOLAG_GPUINSTANCE_ORIENT = "orient";
 	public const string HAPI_ATTRIB_DOLAG_GPUINSTANCE_N = "N";
 	public const string HAPI_GPUINSTANCE_JSON_TMP_PATH = "Assets/Resources/_HoudiniInstanceTmp/HoudiniGPUInstance.json";
+	public const int HAPI_GPUINSTANCE_CHUNK_SIZE = 512;
 
 
 	public const string HAPI_UNGROUPED_GROUP_NAME = "__ungrouped_group";
