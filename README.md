@@ -21,14 +21,17 @@
 
 4. "GPU Instance Path" in the "Bake" section controls the output json file path. Every time you press "Cook", "Recook", "Rebuild" button, GPU instance data will be saved if exist.
 
-5. This json data is organized by the structure "*HoudiniEngineUnity*.HEU_GetGPUInstanceData.*GPUInstanceData*". This struct contains 3 array members:
+5. This json data is organized by the structure "*HoudiniEngineUnity*.HEU_GetGPUInstanceData.*GPUInstanceData*". This struct contains 2 array members:
 
-   + protoIndex[]: prototype index of each point, ordered by point number.
-   + modelToWorldMat[]: model to world matrix of each point, ordered by point number.
+   + points[]: type is List<*HoudiniEngineUnity*.*HEU_InstancedPointData*>, represents all points. 
+     *HoudiniEngineUnity*.*HEU_InstancedPointData* is a data type storing all essential data of one point, for now it contains following members:
+     + pos: point position
+     + modelToWorldMat: matrix change model space position into world space
+     + protoIndex: index of prototype
    + proto[]: prototype data, ordered by prototype index.
-
+   
    Access the data by the following codes.
-
+   
    ```csharp
    using System.IO;
    
