@@ -58,8 +58,7 @@ namespace HoudiniEngineUnity{
         [System.Serializable]
         public struct GPUInstanceData{
             // below here is the data per instance point
-            public int[] protoIndex;
-            public Matrix4x4[] modelToWorldMat;
+            public List<HEU_InstancedPointData> points;
             // proto is the real mesh path per instance
             public string[] proto;
         }
@@ -67,13 +66,11 @@ namespace HoudiniEngineUnity{
         public GPUInstanceData gpuinstanceData{get{return _gpuinstanceData;}}
         private List<HEU_GeoNode> _geoNodes{get; set;}
         private HEU_GetAttributeOutputData _getData;
-        public HEU_GetGPUInstanceData(HEU_SessionBase session,List<HEU_GeoNode> geoNodes){
+        public HEU_GetGPUInstanceData(HEU_SessionBase session,List<HEU_GeoNode> geoNodes, int chunkSize){
             this.session = session;
             this._geoNodes = geoNodes;
             _getData = new HEU_GetAttributeOutputData(session, geoNodes);
-            //_getData.GetGeoNodesOutputData<float>(HEU_Defines.HAPI_ATTRIB_DOLAG_GPUINSTANCE_ORIENT);
             GetGPUInstanceData();
-            // Debug.Log(string.Format("success! PC num is {0} and the value of the first point is {1}!", _gpuinstanceData.proto_index.Length, _gpuinstanceData.proto[0]));
         }
         public void GetGPUInstanceData(){
             // get prototype index per point
@@ -85,6 +82,7 @@ namespace HoudiniEngineUnity{
             int pcnum = _getData[HEU_Defines.HAPI_ATTRIB_POSITION]._attributeInfo.count;
             if(pcnum == 0){
                 Debug.LogWarning("No point output in HDA.");
+                return;
             }
 
             // get prototype owned by detail
@@ -106,6 +104,7 @@ namespace HoudiniEngineUnity{
 
             // process model to world matrix
             Matrix4x4[] modelToWorldMatArray = new Matrix4x4[pcnum];
+            HEU_InstancedPointData[] instance_points = new HEU_InstancedPointData[pcnum];
             for(int i = 0;i < pcnum; ++i){
                 Quaternion rot = Quaternion.identity;
                 Vector3 pos = Vector3.zero;
@@ -133,20 +132,18 @@ namespace HoudiniEngineUnity{
                     scale = _getData[HEU_Defines.HAPI_ATTRIB_DOLAG_GPUINSTANCE_PSCALE]._vector3Values[i];
                 }
 
-                modelToWorldMatArray[i] = Matrix4x4.TRS(pos, rot, scale);
+                instance_points[i].modelToWorldMat = Matrix4x4.TRS(pos, rot, scale);
+                instance_points[i].protoIndex = _getData[HEU_Defines.HAPI_ATTRIB_DOLAG_GPUINSTANCE_PROTOTYPE_INDEX]._intValues[i];
+                instance_points[i].pos = pos;
+                //instance_points[i].GetChunkHash();
             }
-            _gpuinstanceData.modelToWorldMat = new Matrix4x4[pcnum];
-            _gpuinstanceData.modelToWorldMat = modelToWorldMatArray;
-            _gpuinstanceData.protoIndex = new int[_getData[HEU_Defines.HAPI_ATTRIB_DOLAG_GPUINSTANCE_PROTOTYPE_INDEX]._attributeInfo.count];
-            _gpuinstanceData.protoIndex = _getData[HEU_Defines.HAPI_ATTRIB_DOLAG_GPUINSTANCE_PROTOTYPE_INDEX]._intValues;
-            _gpuinstanceData.proto = new string[proto.Count];
+            _gpuinstanceData.points = new List<HEU_InstancedPointData>(instance_points);
             _gpuinstanceData.proto = proto.ToArray();
         }
         // return null if invalid data
         public string GetJsonData(){
             if(_gpuinstanceData.proto == null || _gpuinstanceData.proto.Length == 0 ||
-             _gpuinstanceData.protoIndex == null || _gpuinstanceData.protoIndex.Length == 0 ||
-             _gpuinstanceData.modelToWorldMat == null || _gpuinstanceData.modelToWorldMat.Length == 0){
+             _gpuinstanceData.points == null || _gpuinstanceData.points.Count == 0){
                 return null;
             }
             return JsonUtility.ToJson(_gpuinstanceData);
@@ -160,6 +157,7 @@ namespace HoudiniEngineUnity{
                 if(!Directory.Exists(folder))
                     Directory.CreateDirectory(folder);
             }
+            
             StreamWriter writer = new StreamWriter(asset_path, false);
             string json_data = GetJsonData();
             if(json_data == null)
