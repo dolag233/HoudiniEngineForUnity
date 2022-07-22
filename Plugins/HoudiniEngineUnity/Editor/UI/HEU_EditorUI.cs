@@ -156,7 +156,7 @@ namespace HoudiniEngineUnity
 	/// <summary>
 	/// Draw the specified string property field (via its propertyName).
 	/// </summary>
-	public static void DrawStringPropertyField(SerializedObject assetObject, string propertyName, string labelName, string toolTip = "")
+	public static void DrawEditablePropertyField(SerializedObject assetObject, string propertyName, string labelName, string toolTip = "")
 	{
 	    SerializedProperty property = assetObject.FindProperty(propertyName);
 
